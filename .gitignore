@@ -3,3 +3,5 @@ dist/
 .DS_Store
 /src/test.http
 /server.log
+/connection-string.txt
+/.env
