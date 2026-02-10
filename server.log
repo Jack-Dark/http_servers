@@ -3,7 +3,11 @@
 > npx tsc && node dist/index.js
 
 Server is running at http://localhost:8080
-[NON-OK] GET /healthz - Status: 304
-[NON-OK] GET /asdfas - Status: 404
-[NON-OK] GET /non-existent-path - Status: 404
-[NON-OK] GET /non-existent-path - Status: 404
+[NON-OK] GET /metrics - Status: 304
+[NON-OK] GET /metrics - Status: 304
+[NON-OK] GET /metrics - Status: 304
+[NON-OK] GET /metrics - Status: 304
+[NON-OK] GET / - Status: 304
+[NON-OK] GET /favicon.ico - Status: 404
+[NON-OK] GET /favicon.ico - Status: 404
+[NON-OK] GET /reset - Status: 304
