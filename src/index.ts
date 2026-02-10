@@ -1,6 +1,6 @@
 import express from "express";
 import { handlerReadiness } from "./api/readiness.js";
-import { middlewareLogResponses, middlewareMetricsInc } from "./api/middleware.js";
+import { middlewareLogResponse, middlewareMetricsInc } from "./api/middleware.js";
 import { handlerMetrics } from "./api/metrics.js";
 import { handlerReset } from "./api/reset.js";
 import { handlerChirpsValidate } from "./api/chirps.js";
@@ -8,7 +8,9 @@ import { handlerChirpsValidate } from "./api/chirps.js";
 const app = express();
 const PORT = 8080;
 
-app.use(express.json(), middlewareLogResponses);
+app.use(middlewareLogResponse);
+app.use(express.json());
+
 app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 
 app.get("/api/healthz", handlerReadiness);
