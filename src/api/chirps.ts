@@ -15,7 +15,22 @@ export async function handlerChirpsValidate(req: Request, res: Response) {
     return;
   }
 
+  const badWords = [
+    /kerfuffle/ig,
+    /sharbert/ig,
+    /fornax/ig,
+  ];
+  const hasBadWord = badWords.some(word => {
+    return word.test(params.body)
+  })
+
+  if (hasBadWord) {
+    badWords.forEach(word => {
+      params.body = params.body.replace(word, '****')
+    })
+  }
+
   respondWithJSON(res, 200, {
-    valid: true,
+    cleanedBody: params.body,
   });
 }
