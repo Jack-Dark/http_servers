@@ -1,7 +1,7 @@
-import type { Request, Response } from "express";
+import type { RequestHandler } from "express";
 import { config } from "../config.js";
 
-export const handlerMetrics = (_req: Request, res: Response) => {
+export const handlerMetrics: RequestHandler = (_req, res) => {
   res.contentType('text/html; charset=utf-8')
   res.send(`
 <html>
