@@ -14,7 +14,7 @@ export const middlewareLogResponse: RequestHandler = (req, res, next) => {
 };
 
 export const middlewareMetricsInc: RequestHandler = (_req, _res, next) => {
-  config.fileserverHits++
+  config.api.fileServerHits++
   next();
 };
 

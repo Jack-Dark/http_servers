@@ -5,9 +5,9 @@ process.loadEnvFile();
 
 export default defineConfig({
   schema: "src/schema.ts",
-  out: "src/db",
+  out: config.db.migrationConfig.migrationsFolder,
   dialect: "postgresql",
   dbCredentials: {
-    url: config.dbURL,
+    url: config.db.url,
   },
 });
