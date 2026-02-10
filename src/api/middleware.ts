@@ -19,16 +19,22 @@ export const middlewareMetricsInc: RequestHandler = (_req, _res, next) => {
 };
 
 
-export const errorHandler: ErrorRequestHandler = (
+export const errorHandlerMiddleware: ErrorRequestHandler = (
   err: Error,
   _req,
   res,
   _next,
 ) => {
-  let statusCode = 500;
+
   let message = "Something went wrong on our end";
 
   console.log(err.message);
 
-  respondWithError(res, statusCode, message);
+  respondWithError(res, res.statusCode, message);
+}
+
+export class NotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
 }

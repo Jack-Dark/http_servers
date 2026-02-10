@@ -1,6 +1,6 @@
 import express from "express";
 import { handlerReadiness } from "./api/readiness.js";
-import { errorHandler, middlewareLogResponse, middlewareMetricsInc } from "./api/middleware.js";
+import { errorHandlerMiddleware, middlewareLogResponse, middlewareMetricsInc } from "./api/middleware.js";
 import { handlerMetrics } from "./api/metrics.js";
 import { handlerReset } from "./api/reset.js";
 import { handlerChirpsValidate } from "./api/chirps.js";
@@ -27,7 +27,7 @@ app.get("/admin/metrics", errorWrapper(handlerMetrics));
 app.post("/admin/reset", errorWrapper(handlerReset));
 app.post("/api/validate_chirp", errorWrapper(handlerChirpsValidate));
 
-app.use(errorHandler);
+app.use(errorHandlerMiddleware);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
