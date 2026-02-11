@@ -4,7 +4,7 @@ import { config } from './src/config'
 process.loadEnvFile();
 
 export default defineConfig({
-  schema: "src/schema.ts",
+  schema: "./src/db/schema.ts",
   out: config.db.migrationConfig.migrationsFolder,
   dialect: "postgresql",
   dbCredentials: {
