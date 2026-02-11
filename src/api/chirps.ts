@@ -2,7 +2,7 @@ import type { RequestHandler } from "express";
 
 import { respondWithJSON } from "./json.js";
 import { BadRequestError } from "./errors.js";
-import { createChirp } from "src/db/queries/chirps.js";
+import { createChirp } from "../db/queries/chirps.js";
 type CreateChirpParams = {
   body: string;
   userId: string;
