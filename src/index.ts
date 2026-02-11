@@ -9,7 +9,9 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
+import { handlerUsersCreate } from "./api/users.js";
 
+/** Wrap your handler function in this to ensure errors are correctly passed to express's `next`. */
 const errorWrapper = (handler: RequestHandler): RequestHandler => {
   return (req, res, next) => {
     Promise.resolve(handler(req, res, next)).catch(next)
@@ -31,6 +33,7 @@ app.get("/api/healthz", errorWrapper(handlerReadiness));
 app.get("/admin/metrics", errorWrapper(handlerMetrics));
 
 app.post("/admin/reset", errorWrapper(handlerReset));
+app.post("/api/users", errorWrapper(handlerUsersCreate));
 app.post("/api/validate_chirp", errorWrapper(handlerChirpsValidate));
 
 app.use(errorHandlerMiddleware);

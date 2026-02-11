@@ -6,7 +6,6 @@ type Params = {
 };
 
 export const handlerChirpsValidate: RequestHandler = async (req, res) => {
-
   const params: Params = req.body;
 
   const maxChirpLength = 140;
