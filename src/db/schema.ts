@@ -8,7 +8,7 @@ export const users = pgTable("users", {
     .defaultNow()
     .$onUpdate(() => new Date()),
   email: varchar("email", { length: 256 }).unique().notNull(),
-  hashedPassword: varchar("hashed_password", { length: 256 }).default('unset').notNull(),
+  hashedPassword: varchar("hashed_password", { length: 256 }).notNull().default('unset'),
 });
 
 export type NewUser = typeof users.$inferInsert;
