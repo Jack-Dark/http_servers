@@ -5,22 +5,21 @@ import { BadRequestError, UserNotAuthenticatedError } from "./errors.js";
 import { respondWithJSON } from "./json.js";
 import { checkPasswordHash, makeJWT } from "../auth.js";
 import { config } from "../config.js";
+import { UserResponse } from "./users.js";
 
 
+type LoginResponse = UserResponse & {
+  token: string;
+};
 export const handlerLogin: RequestHandler = async (req, res) => {
   type Params = {
     email: string;
     password: string;
-    expiresInSeconds?: number
+    expiresInSec?: number
   };
   const params: Params = req.body
   const { email, password, } = params;
 
-  const oneHourInSec = 60 * 60
-  let expiresInSeconds = params.expiresInSeconds
-  if (!expiresInSeconds || expiresInSeconds > oneHourInSec) {
-    expiresInSeconds = oneHourInSec
-  }
 
   if (!email || !password) {
     throw new BadRequestError("Missing required fields");
@@ -42,7 +41,11 @@ export const handlerLogin: RequestHandler = async (req, res) => {
     throw new UserNotAuthenticatedError(invalidLoginMessage);
   }
 
-  const token = makeJWT(user.id, expiresInSeconds, config.api.secret)
+  let duration = params.expiresInSec
+  if (!duration || duration > config.jwt.defaultDuration) {
+    duration = config.jwt.defaultDuration
+  }
+  const token = makeJWT(user.id, duration, config.jwt.secret)
 
   respondWithJSON(res, 200, {
     id: user.id,
@@ -50,5 +53,5 @@ export const handlerLogin: RequestHandler = async (req, res) => {
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     token,
-  });
+  } satisfies LoginResponse);
 };

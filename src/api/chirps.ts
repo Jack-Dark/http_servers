@@ -9,19 +9,14 @@ import { config } from "../config.js";
 export const handlerChirpsCreate: RequestHandler = async (req, res) => {
   type Params = {
     body: string;
-    userId: string;
   };
   const params: Params = req.body;
 
   const bearerToken = getBearerToken(req);
+  const userId = validateJWT(bearerToken, config.jwt.secret);
 
-  if (!bearerToken) {
-    throw new UserNotAuthenticatedError("User is not authenticated. Please login.")
-  }
-
-  const tokenUserId = validateJWT(bearerToken, config.api.secret);
   const cleaned = validateChirp(params.body);
-  const chirp = await createChirp({ body: cleaned, userId: tokenUserId });
+  const chirp = await createChirp({ body: cleaned, userId });
 
   respondWithJSON(res, 201, chirp);
 }

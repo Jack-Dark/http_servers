@@ -4,18 +4,25 @@ import type { MigrationConfig } from "drizzle-orm/migrator";
 type Config = {
   api: APIConfig;
   db: DBConfig;
+  jwt: JWTConfig;
 };
 
 type APIConfig = {
   fileServerHits: number;
-  port: number;
   platform: 'dev',
-  secret: string;
+  port: number;
 };
 
 type DBConfig = {
   url: string;
   migrationConfig: MigrationConfig;
+};
+
+type JWTConfig = {
+  /** In seconds */
+  defaultDuration: number;
+  secret: string;
+  issuer: string;
 };
 
 process.loadEnvFile();
@@ -28,12 +35,11 @@ const envOrThrow = <T extends string>(key: string): T => {
   throw new Error(`"${key}" does not exist in your environment variables. Please add it and try again.`);
 }
 
-export const config = {
+export const config: Config = {
   api: {
     fileServerHits: 0,
     platform: envOrThrow("PLATFORM"),
     port: Number(envOrThrow("PORT")),
-    secret: envOrThrow("SECRET"),
   },
   db: {
     url: envOrThrow('DB_URL'),
@@ -41,4 +47,9 @@ export const config = {
       migrationsFolder: "./src/db/migrations" as const,
     },
   },
-} satisfies Config
+  jwt: {
+    defaultDuration: 360,
+    secret: envOrThrow("SECRET"),
+    issuer: 'chirpy'
+  },
+};

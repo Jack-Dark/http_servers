@@ -3,9 +3,9 @@ import type { JwtPayload } from "jsonwebtoken";
 import jwt from "jsonwebtoken";
 import type { Request } from "express";
 
-import { UserNotAuthenticatedError } from "./api/errors.js";
+import { BadRequestError, UserNotAuthenticatedError } from "./api/errors.js";
+import { config } from "./config.js";
 
-const TOKEN_ISSUER = "chirpy";
 
 export const hashPassword = (password: string) => {
   return hash(password);
@@ -25,7 +25,7 @@ type Payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
 export const makeJWT = (userID: string, expiresIn: number, secret: string): string => {
   const iat = Math.floor(Date.now() / 1000);
   const payload: Payload = {
-    iss: 'chirpy',
+    iss: config.jwt.issuer,
     sub: userID,
     iat,
     exp: iat + expiresIn
@@ -42,7 +42,7 @@ export const validateJWT = (tokenString: string, secret: string): string => {
     throw new UserNotAuthenticatedError("Invalid token");
   }
 
-  if (decoded.iss !== TOKEN_ISSUER) {
+  if (decoded.iss !== config.jwt.issuer) {
     throw new UserNotAuthenticatedError("Invalid issuer");
   }
 
@@ -53,8 +53,21 @@ export const validateJWT = (tokenString: string, secret: string): string => {
   return decoded.sub;
 }
 
+const malformedAuthHeaderMsg = "Malformed authorization header";
+
 export const getBearerToken = (req: Request) => {
-  let token = req.get('Authorization');
-  token = token?.replace(/bearer\s/i, '')
-  return token
+  const authHeader = req.get("Authorization");
+  if (!authHeader) {
+    throw new BadRequestError(malformedAuthHeaderMsg);
+  }
+
+  return extractBearerToken(authHeader);
+}
+
+export const extractBearerToken = (header: string) => {
+  const splitAuth = header.split(" ");
+  if (splitAuth.length < 2 || splitAuth[0] !== "Bearer") {
+    throw new BadRequestError(malformedAuthHeaderMsg);
+  }
+  return splitAuth[1];
 }
