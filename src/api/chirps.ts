@@ -1,17 +1,17 @@
 import type { RequestHandler } from "express";
 
 import { respondWithJSON } from "./json.js";
-import { BadRequestError } from "./errors.js";
-import { createChirp, getChirps } from "../db/queries/chirps.js";
-type CreateChirpParams = {
-  body: string;
-  userId: string;
-};
+import { BadRequestError, NotFoundError } from "./errors.js";
+import { createChirp, getChirp, getChirps } from "../db/queries/chirps.js";
 
 export const maxChirpLength = 140;
 
 export const handlerChirpsCreate: RequestHandler = async (req, res, next) => {
-  const params: CreateChirpParams = req.body;
+  type Params = {
+    body: string;
+    userId: string;
+  };
+  const params: Params = req.body;
 
 
 
@@ -53,4 +53,16 @@ export const handlerGetAllChirps: RequestHandler = async (req, res) => {
   const chirps = await getChirps();
 
   respondWithJSON(res, 200, chirps);
+}
+
+
+export const handlerGetChirp: RequestHandler<{ id: string }> = async (req, res) => {
+  const params = req.params;
+  const chirp = await getChirp(params.id);
+
+  if (!chirp) {
+    throw new NotFoundError('Chirp not found.')
+  }
+
+  respondWithJSON(res, 200, chirp);
 }
