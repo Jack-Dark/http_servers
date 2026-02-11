@@ -1,6 +1,6 @@
 import express from "express";
 import { handlerReadiness } from "./api/readiness.js";
-import { errorHandlerMiddleware, middlewareLogResponse, middlewareMetricsInc } from "./api/middleware.js";
+import { errorMiddleWare, middlewareLogResponse, middlewareMetricsInc } from "./api/middleware.js";
 import { handlerMetrics } from "./api/metrics.js";
 import { handlerReset } from "./api/reset.js";
 import { handlerGetChirp, handlerChirpsCreate, handlerGetAllChirps } from "./api/chirps.js";
@@ -9,7 +9,7 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
-import { handlerUsersCreate } from "./api/users.js";
+import { handlerUsersCreate, handlerUsersLogin } from "./api/users.js";
 import { ParamsDictionary } from "express-serve-static-core";
 
 /** Wrap your handler function in this to ensure errors are correctly passed to express's `next`. */
@@ -35,12 +35,13 @@ app.get("/admin/metrics", errorWrapper(handlerMetrics));
 
 app.post("/admin/reset", errorWrapper(handlerReset));
 app.post("/api/users", errorWrapper(handlerUsersCreate));
+app.post("/api/login", errorWrapper(handlerUsersLogin));
 
 app.post("/api/chirps", errorWrapper(handlerChirpsCreate));
 app.get("/api/chirps", errorWrapper(handlerGetAllChirps));
 app.get("/api/chirps/:chirpId", errorWrapper(handlerGetChirp))
 
-app.use(errorHandlerMiddleware);
+app.use(errorMiddleWare);
 
 app.listen(config.api.port, () => {
   console.log(`Server is running at http://localhost:${config.api.port}`);
