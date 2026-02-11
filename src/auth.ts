@@ -1,6 +1,8 @@
 import { hash, verify } from "argon2"
 import type { JwtPayload } from "jsonwebtoken";
 import jwt from "jsonwebtoken";
+import type { Request } from "express";
+
 import { UserNotAuthenticatedError } from "./api/errors.js";
 
 const TOKEN_ISSUER = "chirpy";
@@ -31,6 +33,7 @@ export const makeJWT = (userID: string, expiresIn: number, secret: string): stri
   return jwt.sign(payload, secret);
 }
 
+/** Returns user ID associated with token. */
 export const validateJWT = (tokenString: string, secret: string): string => {
   let decoded: Payload;
   try {
@@ -48,4 +51,10 @@ export const validateJWT = (tokenString: string, secret: string): string => {
   }
 
   return decoded.sub;
+}
+
+export const getBearerToken = (req: Request) => {
+  let token = req.get('Authorization');
+  token = token?.replace(/bearer\s/i, '')
+  return token
 }

@@ -1,27 +1,32 @@
 import type { RequestHandler } from "express";
 
 import { respondWithJSON } from "./json.js";
-import { BadRequestError, NotFoundError } from "./errors.js";
+import { BadRequestError, NotFoundError, UserNotAuthenticatedError } from "./errors.js";
 import { createChirp, getChirp, getChirps } from "../db/queries/chirps.js";
+import { getBearerToken, validateJWT } from "../auth.js";
+import { config } from "../config.js";
 
-export const maxChirpLength = 140;
-
-export const handlerChirpsCreate: RequestHandler = async (req, res, next) => {
+export const handlerChirpsCreate: RequestHandler = async (req, res) => {
   type Params = {
     body: string;
     userId: string;
   };
   const params: Params = req.body;
 
+  const bearerToken = getBearerToken(req);
 
+  if (!bearerToken) {
+    throw new UserNotAuthenticatedError("User is not authenticated. Please login.")
+  }
 
+  const tokenUserId = validateJWT(bearerToken, config.api.secret);
   const cleaned = validateChirp(params.body);
-  const chirp = await createChirp({ body: cleaned, userId: params.userId });
+  const chirp = await createChirp({ body: cleaned, userId: tokenUserId });
 
   respondWithJSON(res, 201, chirp);
 }
 
-function validateChirp(body: string) {
+const validateChirp = (body: string) => {
   const maxChirpLength = 140;
   if (body.length > maxChirpLength) {
     throw new BadRequestError(
@@ -33,7 +38,7 @@ function validateChirp(body: string) {
   return getCleanedBody(body, badWords);
 }
 
-function getCleanedBody(body: string, badWords: string[]) {
+const getCleanedBody = (body: string, badWords: string[]) => {
   const words = body.split(" ");
 
   for (let i = 0; i < words.length; i++) {
