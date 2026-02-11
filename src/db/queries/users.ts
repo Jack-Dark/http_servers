@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../index.js";
 import { NewUser, users } from "../schema.js";
-import { checkPasswordHash, hashPassword } from "../../auth.js";
 
 export async function createUser(user: NewUser) {
   const [newUser] = await db

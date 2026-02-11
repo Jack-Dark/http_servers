@@ -1,8 +1,9 @@
 import type { RequestHandler } from "express";
-import { getUserByEmail } from "src/db/queries/users";
-import { BadRequestError, UserNotAuthenticatedError } from "./errors";
-import { respondWithJSON } from "./json";
-import { checkPasswordHash } from "../auth";
+
+import { getUserByEmail } from "../db/queries/users.js";
+import { BadRequestError, UserNotAuthenticatedError } from "./errors.js";
+import { respondWithJSON } from "./json.js";
+import { checkPasswordHash } from "../auth.js";
 
 
 export const handlerLogin: RequestHandler = async (req, res) => {
