@@ -1,14 +1,16 @@
 import type { RequestHandler } from "express";
 
 import { respondWithJSON } from "./json.js";
-type Params = {
+type CreateChirpParams = {
   body: string;
+  userId: string;
 };
 
-export const handlerChirpsValidate: RequestHandler = async (req, res) => {
-  const params: Params = req.body;
+export const maxChirpLength = 140;
 
-  const maxChirpLength = 140;
+export const handlerCreateChirp: RequestHandler = async (req, res, next) => {
+  const params: CreateChirpParams = req.body;
+
   if (params.body.length > maxChirpLength) {
     res.status(400).json({
       error: `Chirp is too long. Max length is ${maxChirpLength}`
@@ -30,7 +32,11 @@ export const handlerChirpsValidate: RequestHandler = async (req, res) => {
     })
   }
 
-  respondWithJSON(res, 200, {
-    cleanedBody: params.body,
+
+
+  respondWithJSON(res, 201, {
+    body: params.body,
+    userId: params.userId
   });
 }
+
