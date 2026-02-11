@@ -56,12 +56,12 @@ export const handlerGetAllChirps: RequestHandler = async (req, res) => {
 }
 
 
-export const handlerGetChirp: RequestHandler<{ id: string }> = async (req, res) => {
-  const params = req.params;
-  const chirp = await getChirp(params.id);
+export const handlerGetChirp: RequestHandler<{ chirpId: string }> = async (req, res) => {
+  const { chirpId } = req.params;
+  const chirp = await getChirp(chirpId);
 
   if (!chirp) {
-    throw new NotFoundError('Chirp not found.')
+    throw new NotFoundError(`Chirp with chirpId: ${chirpId} not found`)
   }
 
   respondWithJSON(res, 200, chirp);
