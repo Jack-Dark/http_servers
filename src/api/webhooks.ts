@@ -1,6 +1,8 @@
 import { RequestHandler } from "express";
 import { getUserById, updateUserIsChirpyRed } from "../db/queries/users.js";
-import { BadRequestError, NotFoundError } from "./errors.js";
+import { BadRequestError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errors.js";
+import { getApiKeyRequest } from "../auth.js";
+import { config } from "../config.js";
 
 export const handlerCheckChirpyRed: RequestHandler = async (req, res) => {
   type Params = {
@@ -21,6 +23,12 @@ export const handlerCheckChirpyRed: RequestHandler = async (req, res) => {
 
   if (!userId) {
     throw new BadRequestError('Missing required fields')
+  }
+
+  const apiKey = getApiKeyRequest(req)
+
+  if (apiKey !== config.api.polkaKey) {
+    throw new UserNotAuthenticatedError('User not authenticated')
   }
 
   const user = await getUserById(userId)
