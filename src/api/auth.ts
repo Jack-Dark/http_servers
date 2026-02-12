@@ -6,7 +6,7 @@ import { respondWithJSON } from "./json.js";
 import { checkPasswordHash, getBearerToken, makeJWT, makeRefreshToken, validateJWT } from "../auth.js";
 import { config } from "../config.js";
 import { UserResponse } from "./users.js";
-import { createRefreshToken, RefreshTokenResponse, getRefreshToken, revokeToken } from "../db/queries/tokens.js";
+import { saveRefreshToken, getRefreshToken, revokeToken } from "../db/queries/refresh.js";
 
 
 type LoginResponse = UserResponse & {
@@ -42,34 +42,61 @@ export const handlerLogin: RequestHandler = async (req, res) => {
     throw new UserNotAuthenticatedError(invalidLoginMessage);
   }
 
-  const authToken = makeJWT(user.id, config.jwt.defaultDuration, config.jwt.secret)
+  const accessToken = makeJWT(user.id, config.jwt.defaultDuration, config.jwt.secret)
   const refreshToken = makeRefreshToken()
 
-  await createRefreshToken({
+  const isSaved = await saveRefreshToken({
     userId: user.id,
     token: refreshToken,
-    expiresAt: new Date(Date.now() + (config.token.durationDays * 24 * 60 * 60 * 1000))
   })
+
+  if (!isSaved) {
+    throw new UserNotAuthenticatedError("could not save refresh token");
+  }
 
   respondWithJSON(res, 200, {
     id: user.id,
     email: user.email,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
-    token: authToken,
+    token: accessToken,
     refreshToken,
   } satisfies LoginResponse);
 };
 
 export const handlerRefreshToken: RequestHandler = async (req, res) => {
-  const bearerToken = getBearerToken(req);
-  const userId = await validateRefreshToken(bearerToken)
+  const refreshToken = getBearerToken(req);
+  const userId = await validateRefreshToken(refreshToken)
 
   const accessToken = makeJWT(userId, config.jwt.defaultDuration, config.jwt.secret)
 
   respondWithJSON(res, 200, {
     token: accessToken,
-  } satisfies RefreshTokenResponse);
+  } satisfies {
+    token: string;
+  });
+}
+
+/** If valid, returns the user ID associated with the token. */
+export const validateRefreshToken = async (token: string) => {
+  if (!token) {
+    throw new UserNotAuthenticatedError("missing refresh token")
+  }
+
+  const matchingToken = await getRefreshToken(token);
+  if (!matchingToken) {
+    throw new UserNotAuthenticatedError("refresh token not found")
+  }
+
+  const now = Date.now()
+  const isRevoked = !!matchingToken.revokedAt;
+  const expiresAt = new Date(matchingToken.expiresAt).getTime();
+  const isExpired = expiresAt < now;
+  if (!matchingToken || isRevoked || isExpired) {
+    throw new UserNotAuthenticatedError("invalid refresh token")
+  }
+
+  return matchingToken.userId
 }
 
 export const handlerRevokeToken: RequestHandler = async (req, res) => {
@@ -79,28 +106,4 @@ export const handlerRevokeToken: RequestHandler = async (req, res) => {
   await revokeToken(bearerToken)
 
   respondWithJSON(res, 204, undefined);
-}
-
-/** If valid, returns the user ID associated with the token. */
-export const validateRefreshToken = async (token: string) => {
-  const notAuthenticatedMsg = 'User not authenticated';
-
-  if (!token) {
-    throw new UserNotAuthenticatedError(notAuthenticatedMsg)
-  }
-
-  const matchingToken = await getRefreshToken(token);
-  if (!matchingToken) {
-    throw new UserNotAuthenticatedError(notAuthenticatedMsg)
-  }
-
-  const now = Date.now()
-  const isRevoked = !!matchingToken.revokedAt;
-  const expiresAt = new Date(matchingToken.expiresAt).getTime();
-  const isExpired = expiresAt < now;
-  if (!matchingToken || isRevoked || isExpired) {
-    throw new UserNotAuthenticatedError(notAuthenticatedMsg)
-  }
-
-  return matchingToken.userId
 }

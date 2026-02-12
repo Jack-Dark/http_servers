@@ -1,19 +1,19 @@
 import { eq } from "drizzle-orm";
 import { db } from "../index.js";
 import { NewToken, tokens } from "../schema.js";
+import { config } from "../../config.js";
 
-export type RefreshTokenResponse = {
-  token: string;
-};
-
-export async function createRefreshToken(token: NewToken) {
-  const [row] = await db
+export async function saveRefreshToken(token: Pick<NewToken, 'token' | 'userId'>) {
+  const rows = await db
     .insert(tokens)
-    .values(token)
-    .onConflictDoNothing()
+    .values({
+      ...token,
+      expiresAt: new Date(Date.now() + config.jwt.refreshDuration),
+      revokedAt: null,
+    })
     .returning();
 
-  return row satisfies RefreshTokenResponse;
+  return rows.length > 0
 }
 
 export async function getRefreshToken(token: string) {
@@ -22,11 +22,6 @@ export async function getRefreshToken(token: string) {
   return row;
 }
 
-export async function getUserFromRefreshToken(token: string) {
-  const [row] = await db.select().from(tokens).where(eq(tokens.token, token));
-
-  return row?.userId;
-}
 
 export async function revokeToken(token: string) {
   const currentTime = new Date();

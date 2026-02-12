@@ -5,7 +5,6 @@ type Config = {
   api: APIConfig;
   db: DBConfig;
   jwt: JWTConfig;
-  token: RefreshTokenConfig;
 };
 
 type APIConfig = {
@@ -20,15 +19,14 @@ type DBConfig = {
 };
 
 type JWTConfig = {
-  /** In seconds */
+  /** Default: 1 hour in seconds */
   defaultDuration: number;
+  /** Default: 60 days in milliseconds */
+  refreshDuration: number;
   secret: string;
   issuer: string;
 };
 
-type RefreshTokenConfig = {
-  durationDays: number
-}
 
 process.loadEnvFile();
 
@@ -54,10 +52,8 @@ export const config: Config = {
   },
   jwt: {
     defaultDuration: 3600,
+    refreshDuration: 60 * 60 * 24 * 60 * 1000,
     secret: envOrThrow("SECRET"),
     issuer: 'chirpy'
   },
-  token: {
-    durationDays: 60
-  }
 };
