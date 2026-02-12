@@ -29,6 +29,7 @@ export const chirps = pgTable("chirps", {
 });
 
 export type NewChirp = typeof chirps.$inferInsert;
+export type ChirpItem = Required<NewChirp>
 
 export const tokens = pgTable("tokens", {
   token: varchar("token", { length: 256 }).primaryKey(),

@@ -5,12 +5,13 @@ import { BadRequestError, NotFoundError, UserForbiddenError } from "./errors.js"
 import { createChirp, deleteChirp, getChirp, getChirps } from "../db/queries/chirps.js";
 import { getBearerToken, validateJWT } from "../auth.js";
 import { config } from "../config.js";
+import { ChirpItem } from "../db/schema.js";
 
-export const handlerChirpsCreate: RequestHandler = async (req, res) => {
-  type Params = {
-    body: string;
-  };
-  const params: Params = req.body;
+
+export const handlerChirpsCreate: RequestHandler<{}, ChirpItem, {
+  body: string;
+}, any> = async (req, res) => {
+  const params = req.body;
 
   const bearerToken = getBearerToken(req);
   const userId = validateJWT(bearerToken, config.jwt.secret);
@@ -49,15 +50,22 @@ const getCleanedBody = (body: string, badWords: string[]) => {
 }
 
 
-export const handlerGetAllChirps: RequestHandler = async (req, res) => {
-  const chirps = await getChirps();
+export const handlerGetAllChirps: RequestHandler<{}, ChirpItem[], any, { authorId?: string }> = async (req, res) => {
+  let authorId = "";
+  let authorIdQuery = req.query.authorId;
+  if (typeof authorIdQuery === "string") {
+    authorId = authorIdQuery;
+  }
+
+  const chirps = await getChirps({ authorId });
 
   respondWithJSON(res, 200, chirps);
 }
 
 
-export const handlerGetChirp: RequestHandler<{ chirpId: string }> = async (req, res) => {
+export const handlerGetChirp: RequestHandler<{ chirpId: string }, ChirpItem, any, any> = async (req, res) => {
   const { chirpId } = req.params;
+
   const chirp = await getChirp(chirpId);
 
   if (!chirp) {
@@ -67,7 +75,7 @@ export const handlerGetChirp: RequestHandler<{ chirpId: string }> = async (req, 
   respondWithJSON(res, 200, chirp);
 }
 
-export const handlerChirpsDelete: RequestHandler<{ chirpId: string }> = async (req, res) => {
+export const handlerChirpsDelete: RequestHandler<{ chirpId: string }, { "Authorization": string }, any, any> = async (req, res) => {
   const { chirpId } = req.params;
 
   const bearerToken = getBearerToken(req);
