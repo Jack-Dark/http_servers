@@ -54,12 +54,10 @@ export const validateJWT = (tokenString: string, secret: string): string => {
   return decoded.sub;
 }
 
-const malformedAuthHeaderMsg = "Malformed authorization header";
-
 export const getBearerToken = (req: Request) => {
   const authHeader = req.get("Authorization");
   if (!authHeader) {
-    throw new BadRequestError(malformedAuthHeaderMsg);
+    throw new UserNotAuthenticatedError("User not authenticated");
   }
 
   return extractBearerToken(authHeader);
@@ -68,7 +66,7 @@ export const getBearerToken = (req: Request) => {
 export const extractBearerToken = (header: string) => {
   const splitAuth = header.split(" ");
   if (splitAuth.length < 2 || splitAuth[0] !== "Bearer") {
-    throw new BadRequestError(malformedAuthHeaderMsg);
+    throw new BadRequestError("Malformed authorization header");
   }
   return splitAuth[1];
 }

@@ -9,7 +9,7 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
-import { handlerUsersCreate } from "./api/users.js";
+import { handlerUsersCreate, handlerUsersUpdate } from "./api/users.js";
 import { handlerRefreshToken, handlerLogin, handlerRevokeToken } from "./api/auth.js";
 import { ParamsDictionary } from "express-serve-static-core";
 
@@ -36,6 +36,7 @@ app.get("/admin/metrics", errorWrapper(handlerMetrics));
 
 app.post("/admin/reset", errorWrapper(handlerReset));
 app.post("/api/users", errorWrapper(handlerUsersCreate));
+app.put("/api/users", errorWrapper(handlerUsersUpdate));
 app.post("/api/login", errorWrapper(handlerLogin));
 app.post("/api/refresh", errorWrapper(handlerRefreshToken));
 app.post("/api/revoke", errorWrapper(handlerRevokeToken));
