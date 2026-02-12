@@ -57,7 +57,7 @@ export const handlerGetAllChirps: RequestHandler<{}, ChirpItem[], any, { authorI
     authorId = authorIdQuery;
   }
 
-  let sort: SortOption = 'asc';
+  let sort: SortOption = sortOptions.asc;
   if (req.query.sort && Object.values(sortOptions).includes(req.query.sort)) {
     sort = req.query.sort
   }
