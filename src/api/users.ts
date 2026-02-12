@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
 
-import { createUser, updateUser } from "../db/queries/users.js";
+import { createUser, updateUserLogin } from "../db/queries/users.js";
 import { BadRequestError } from "./errors.js";
 import { respondWithJSON } from "./json.js";
 import { getBearerToken, hashPassword, validateJWT } from "../auth.js";
@@ -22,7 +22,7 @@ export const handlerUsersCreate: RequestHandler = async (req, res) => {
 
   const hashedPassword = await hashPassword(password);
 
-  const user = await createUser({ email, hashedPassword, });
+  const user = await createUser({ email, hashedPassword });
 
   if (!user) {
     throw new Error("Could not create user");
@@ -33,6 +33,7 @@ export const handlerUsersCreate: RequestHandler = async (req, res) => {
     email: user.email,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    isChirpyRed: user.isChirpyRed,
   } satisfies UserResponse);
 }
 
@@ -54,7 +55,7 @@ export const handlerUsersUpdate: RequestHandler = async (req, res) => {
 
   const hashedPassword = await hashPassword(password);
 
-  const updatedUser = await updateUser({ email, hashedPassword, id: userId });
+  const updatedUser = await updateUserLogin({ email, hashedPassword, id: userId });
 
   if (!updatedUser) {
     throw new Error("Could not update user");
@@ -65,6 +66,7 @@ export const handlerUsersUpdate: RequestHandler = async (req, res) => {
     email: updatedUser.email,
     createdAt: updatedUser.createdAt,
     updatedAt: updatedUser.updatedAt,
+    isChirpyRed: updatedUser.isChirpyRed,
   } satisfies UserResponse);
 }
 

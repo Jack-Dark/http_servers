@@ -12,6 +12,7 @@ import { config } from "./config.js";
 import { handlerUsersCreate, handlerUsersUpdate } from "./api/users.js";
 import { handlerRefreshToken, handlerLogin, handlerRevokeToken } from "./api/auth.js";
 import { ParamsDictionary } from "express-serve-static-core";
+import { handlerCheckChirpyRed } from "./api/polka.js";
 
 /** Wrap your handler function in this to ensure errors are correctly passed to express's `next`. */
 const errorWrapper = <T extends ParamsDictionary>(handler: RequestHandler<T>): RequestHandler<T> => {
@@ -40,6 +41,8 @@ app.put("/api/users", errorWrapper(handlerUsersUpdate));
 app.post("/api/login", errorWrapper(handlerLogin));
 app.post("/api/refresh", errorWrapper(handlerRefreshToken));
 app.post("/api/revoke", errorWrapper(handlerRevokeToken));
+
+app.post("/api/polka/webhooks", errorWrapper(handlerCheckChirpyRed))
 
 app.post("/api/chirps", errorWrapper(handlerChirpsCreate));
 app.get("/api/chirps", errorWrapper(handlerGetAllChirps));

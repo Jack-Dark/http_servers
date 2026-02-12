@@ -61,6 +61,7 @@ export const handlerLogin: RequestHandler = async (req, res) => {
     updatedAt: user.updatedAt,
     token: accessToken,
     refreshToken,
+    isChirpyRed: user.isChirpyRed,
   } satisfies LoginResponse);
 };
 
@@ -105,5 +106,5 @@ export const handlerRevokeToken: RequestHandler = async (req, res) => {
 
   await revokeToken(bearerToken)
 
-  respondWithJSON(res, 204, undefined);
+  res.status(204).send()
 }
