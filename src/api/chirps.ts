@@ -6,6 +6,7 @@ import { createChirp, deleteChirp, getChirp, getChirps } from "../db/queries/chi
 import { getBearerToken, validateJWT } from "../auth.js";
 import { config } from "../config.js";
 import { ChirpItem } from "../db/schema.js";
+import { SortOption, sortOptions } from "../db/filters.js";
 
 
 export const handlerChirpsCreate: RequestHandler<{}, ChirpItem, {
@@ -49,15 +50,19 @@ const getCleanedBody = (body: string, badWords: string[]) => {
   return cleaned;
 }
 
-
-export const handlerGetAllChirps: RequestHandler<{}, ChirpItem[], any, { authorId?: string }> = async (req, res) => {
+export const handlerGetAllChirps: RequestHandler<{}, ChirpItem[], any, { authorId?: string, sort?: SortOption }> = async (req, res) => {
   let authorId = "";
   let authorIdQuery = req.query.authorId;
   if (typeof authorIdQuery === "string") {
     authorId = authorIdQuery;
   }
 
-  const chirps = await getChirps({ authorId });
+  let sort: SortOption = 'asc';
+  if (req.query.sort && Object.values(sortOptions).includes(req.query.sort)) {
+    sort = req.query.sort
+  }
+
+  const chirps = await getChirps({ authorId, sort });
 
   respondWithJSON(res, 200, chirps);
 }
