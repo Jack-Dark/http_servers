@@ -12,7 +12,7 @@ import { config } from "./config.js";
 import { handlerUsersCreate, handlerUsersUpdate } from "./api/users.js";
 import { handlerRefreshToken, handlerLogin, handlerRevokeToken } from "./api/auth.js";
 import { ParamsDictionary } from "express-serve-static-core";
-import { handlerCheckChirpyRed } from "./api/polka.js";
+import { handlerCheckChirpyRed } from "./api/webhooks.js";
 
 /** Wrap your handler function in this to ensure errors are correctly passed to express's `next`. */
 const errorWrapper = <T extends ParamsDictionary>(handler: RequestHandler<T>): RequestHandler<T> => {
