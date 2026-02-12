@@ -3,7 +3,7 @@ import { handlerReadiness } from "./api/readiness.js";
 import { errorMiddleWare, middlewareLogResponse, middlewareMetricsInc } from "./api/middleware.js";
 import { handlerMetrics } from "./api/metrics.js";
 import { handlerReset } from "./api/reset.js";
-import { handlerGetChirp, handlerChirpsCreate, handlerGetAllChirps } from "./api/chirps.js";
+import { handlerGetChirp, handlerChirpsCreate, handlerGetAllChirps, handlerChirpsDelete } from "./api/chirps.js";
 import type { RequestHandler } from "express";
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -44,6 +44,7 @@ app.post("/api/revoke", errorWrapper(handlerRevokeToken));
 app.post("/api/chirps", errorWrapper(handlerChirpsCreate));
 app.get("/api/chirps", errorWrapper(handlerGetAllChirps));
 app.get("/api/chirps/:chirpId", errorWrapper(handlerGetChirp))
+app.delete("/api/chirps/:chirpId", errorWrapper(handlerChirpsDelete))
 
 app.use(errorMiddleWare);
 

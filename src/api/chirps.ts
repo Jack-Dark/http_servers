@@ -1,8 +1,8 @@
 import type { RequestHandler } from "express";
 
 import { respondWithJSON } from "./json.js";
-import { BadRequestError, NotFoundError, UserNotAuthenticatedError } from "./errors.js";
-import { createChirp, getChirp, getChirps } from "../db/queries/chirps.js";
+import { BadRequestError, NotFoundError, UserForbiddenError } from "./errors.js";
+import { createChirp, deleteChirp, getChirp, getChirps } from "../db/queries/chirps.js";
 import { getBearerToken, validateJWT } from "../auth.js";
 import { config } from "../config.js";
 
@@ -65,4 +65,23 @@ export const handlerGetChirp: RequestHandler<{ chirpId: string }> = async (req, 
   }
 
   respondWithJSON(res, 200, chirp);
+}
+
+export const handlerChirpsDelete: RequestHandler<{ chirpId: string }> = async (req, res) => {
+  const { chirpId } = req.params;
+
+  const bearerToken = getBearerToken(req);
+  const userId = validateJWT(bearerToken, config.jwt.secret);
+
+  const chirp = await deleteChirp({ chirpId, userId });
+
+  if (!chirp) {
+    throw new NotFoundError(`Chirp with chirpId: ${chirpId} not found`)
+  }
+
+  if (chirp.userId !== userId) {
+    throw new UserForbiddenError(`Chirp with chirpId: ${chirpId} not created by user with userId: ${userId}.`)
+  }
+
+  respondWithJSON(res, 204, {});
 }
