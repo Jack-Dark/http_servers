@@ -73,15 +73,21 @@ export const handlerChirpsDelete: RequestHandler<{ chirpId: string }> = async (r
   const bearerToken = getBearerToken(req);
   const userId = validateJWT(bearerToken, config.jwt.secret);
 
-  const chirp = await deleteChirp({ chirpId, userId });
+  const chirp = await getChirp(chirpId);
 
   if (!chirp) {
     throw new NotFoundError(`Chirp with chirpId: ${chirpId} not found`)
   }
 
   if (chirp.userId !== userId) {
-    throw new UserForbiddenError(`Chirp with chirpId: ${chirpId} not created by user with userId: ${userId}.`)
+    throw new UserForbiddenError("You can't delete this chirp")
   }
 
-  respondWithJSON(res, 204, {});
+  const deleted = await deleteChirp({ chirpId, userId });
+
+  if (!deleted) {
+    throw new Error(`Failed to delete chirp with chirpId: ${chirpId}`);
+  }
+
+  res.status(204).send()
 }

@@ -27,14 +27,9 @@ export async function getChirp(id: string) {
   return row;
 }
 
-/** If chirp belongs to user, returns the deleted chirp. If chirp exists, but belongs to other user, returns the chirp's details. */
 export async function deleteChirp({ chirpId, userId, }: { userId: string, chirpId: string }) {
   const [row] = await db
     .delete(chirps).where(and(eq(chirps.userId, userId), eq(chirps.id, chirpId))).returning()
 
-  if (row) {
-    return row;
-  }
-
-  return getChirp(chirpId)
+  return !!row;
 }
