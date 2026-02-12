@@ -10,7 +10,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
 import { handlerUsersCreate } from "./api/users.js";
-import { handlerLogin } from "./api/auth.js";
+import { handlerRefreshToken, handlerLogin, handlerRevokeToken } from "./api/auth.js";
 import { ParamsDictionary } from "express-serve-static-core";
 
 /** Wrap your handler function in this to ensure errors are correctly passed to express's `next`. */
@@ -37,6 +37,8 @@ app.get("/admin/metrics", errorWrapper(handlerMetrics));
 app.post("/admin/reset", errorWrapper(handlerReset));
 app.post("/api/users", errorWrapper(handlerUsersCreate));
 app.post("/api/login", errorWrapper(handlerLogin));
+app.post("/api/refresh", errorWrapper(handlerRefreshToken));
+app.post("/api/revoke", errorWrapper(handlerRevokeToken));
 
 app.post("/api/chirps", errorWrapper(handlerChirpsCreate));
 app.get("/api/chirps", errorWrapper(handlerGetAllChirps));

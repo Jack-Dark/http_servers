@@ -5,6 +5,7 @@ import type { Request } from "express";
 
 import { BadRequestError, UserNotAuthenticatedError } from "./api/errors.js";
 import { config } from "./config.js";
+import { randomBytes } from "node:crypto";
 
 
 export const hashPassword = (password: string) => {
@@ -70,4 +71,8 @@ export const extractBearerToken = (header: string) => {
     throw new BadRequestError(malformedAuthHeaderMsg);
   }
   return splitAuth[1];
+}
+
+export const makeRefreshToken = () => {
+  return randomBytes(32).toString('hex')
 }

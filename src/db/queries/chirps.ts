@@ -20,13 +20,9 @@ export async function getChirps() {
 }
 
 export async function getChirp(id: string) {
-  const rows = await db
+  const [row] = await db
     .select()
     .from(chirps).where(eq(chirps.id, id))
 
-  if (rows.length === 0) {
-    return;
-  }
-
-  return rows[0];
+  return row;
 }

@@ -15,6 +15,13 @@
       "when": 1770844186586,
       "tag": "0001_steady_war_machine",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770853343569,
+      "tag": "0002_classy_misty_knight",
+      "breakpoints": true
     }
   ]
 }
